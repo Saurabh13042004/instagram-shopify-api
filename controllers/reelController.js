@@ -66,4 +66,16 @@ const getReels = async (req, res) => {
   }
 };
 
-module.exports = { fetchInstagramReels, getReels };
+
+//Delete Reels from the database
+const deleteReels = async (req, res) => {
+  try {
+    const reels = await Reel.deleteMany({}).sort({ created_at: -1 });
+    res.status(200).json({ success: true, reels });
+  } catch (error) {
+    console.error('Error deleting reels:', error.message);
+    res.status(500).json({ success: false, message: 'Failed to delete reels' });
+  }
+};
+
+module.exports = { fetchInstagramReels, getReels,deleteReels };

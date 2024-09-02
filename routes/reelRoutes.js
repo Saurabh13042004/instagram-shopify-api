@@ -7,6 +7,7 @@ const router = express.Router();
 // Route to fetch and store reels for a specific Instagram username
 router.get('/fetch/:username', fetchInstagramReels);
 
+router.delete('/reels', deleteReels);
 // Route to get stored reels
 router.get('/reels', getReels);
 
