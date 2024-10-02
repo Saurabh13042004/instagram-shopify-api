@@ -1,6 +1,6 @@
 // routes/reelRoutes.js
 const express = require('express');
-const { fetchInstagramReels, getReels } = require('../controllers/reelController');
+const { fetchInstagramReels, getReels , deleteReels } = require('../controllers/reelController');
 
 const router = express.Router();
 

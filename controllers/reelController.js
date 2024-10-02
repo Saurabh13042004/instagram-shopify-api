@@ -17,20 +17,22 @@ const fetchInstagramReels = async (req, res) => {
 
     // Fetch Instagram Reels data
     let reels = [];
-    let nextPageUrl = `https://graph.facebook.com/v20.0/${userId}?fields=business_discovery.username(${username}){media{media_url,media_type,id}}&access_token=${accessToken}`;
+    let nextPageUrl = `https://graph.facebook.com/v20.0/${userId}?fields=business_discovery.username(${username}){media{media_url,media_type,id,like_count,comments_count}}&access_token=${accessToken}`;
 
     while (nextPageUrl && reels.length < 10) {
       const response = await axios.get(nextPageUrl);
       const data = response.data;
       const mediaData = data.business_discovery.media.data;
 
-      // Filter and add valid Reels
+      // Filter and add valid Reels with metrics
       mediaData.forEach(media => {
         if (media.media_type === 'VIDEO' && media.media_url && reels.length < 10) {
           reels.push({
             media_url: media.media_url,
             media_type: media.media_type,
             instagram_id: media.id,
+            likes: media.like_count || 0, // Store likes count
+            comments: media.comments_count || 0 // Store comments count
           });
         }
       });
@@ -38,7 +40,7 @@ const fetchInstagramReels = async (req, res) => {
       // Check if there's a next page and limit not reached
       if (data.business_discovery.media.paging && data.business_discovery.media.paging.cursors && data.business_discovery.media.paging.cursors.after) {
         const nextCursor = data.business_discovery.media.paging.cursors.after;
-        nextPageUrl = `https://graph.facebook.com/v20.0/${userId}?fields=business_discovery.username(${username}){media.after(${nextCursor}){media_url,media_type,id}}&access_token=${accessToken}`;
+        nextPageUrl = `https://graph.facebook.com/v20.0/${userId}?fields=business_discovery.username(${username}){media.after(${nextCursor}){media_url,media_type,id,like_count,comments_count}}&access_token=${accessToken}`;
       } else {
         nextPageUrl = null;
       }
@@ -66,16 +68,15 @@ const getReels = async (req, res) => {
   }
 };
 
-
-//Delete Reels from the database
+// Delete Reels from the database
 const deleteReels = async (req, res) => {
   try {
-    const reels = await Reel.deleteMany({}).sort({ created_at: -1 });
-    res.status(200).json({ success: true, reels });
+    await Reel.deleteMany({});
+    res.status(200).json({ success: true });
   } catch (error) {
     console.error('Error deleting reels:', error.message);
     res.status(500).json({ success: false, message: 'Failed to delete reels' });
   }
 };
 
-module.exports = { fetchInstagramReels, getReels,deleteReels };
+module.exports = { fetchInstagramReels, getReels, deleteReels };
