@@ -12,7 +12,9 @@ dotenv.config();
 connectDB();
 
 const app = express();
-
+app.get('/',(req,res)=>{
+  res.send('API is Healty')
+})
 // Middleware
 app.use(express.json());
 app.use(cors());
